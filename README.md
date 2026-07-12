@@ -17,6 +17,7 @@ A real-time AI-powered invisibility portal built using **Python**, **OpenCV**, a
 - 🌟 Glowing portal effect
 - 👻 Real-time invisibility illusion
 - ⚡ Fast performance using OpenCV
+- 👋 Gesture-based controls
 
 ---
 
@@ -36,6 +37,7 @@ AI-Magic-Invisibility-Portal/
 │
 ├── main.py
 ├── portal.py
+├── gesture_recognizer.py
 ├── requirements.txt
 ├── README.md
 └── screenshots/
@@ -106,7 +108,6 @@ screenshots/
 - Animated energy portal
 - Particle effects
 - Multiple portals
-- Gesture-based controls
 - Portal color customization
 - Background stabilization
 
@@ -119,6 +120,51 @@ screenshots/
 GitHub: https://github.com/sanya-1612
 
 ---
+
+## 🎮 Controls
+
+### Hand Controls
+
+- **Index finger** — Move portal position
+- **Thumb** (distance from index finger) — Adjust portal size
+
+### Keyboard Shortcuts
+
+| Key | Action |
+|-----|--------|
+| `B` | Capture/Refresh Background |
+| `Q` | Quit Application |
+
+### Gesture Controls
+
+Hand gestures provide an additional way to control the portal without the keyboard.
+
+| Gesture | Action |
+|---------|--------|
+| 👌 **OK Sign** | Capture / Refresh Background |
+| ✌️ **Peace Sign** | Toggle Portal Visibility |
+| ✊ **Closed Fist** | Pause / Resume Portal |
+| 🖐️ **Open Palm** | Reset Portal to Default State |
+
+Gesture recognition uses MediaPipe Hands. Hold each gesture steady for about 1 second for reliable detection. Keyboard shortcuts continue to work alongside gestures.
+
+---
+
+## 📖 Usage
+
+1. **Launch** the application — a background frame is captured automatically.
+2. **Move the portal** — point your index finger at the screen.
+3. **Resize the portal** — adjust the distance between your index finger and thumb.
+4. **Use gestures** — perform the supported gestures to control portal actions without the keyboard.
+
+---
+
+## 💡 Tips
+
+- Good lighting improves gesture detection accuracy.
+- Only one hand is tracked at a time.
+- Hold gestures briefly for reliable detection.
+- Keyboard shortcuts remain available as an alternative.
 
 ## ⭐ Support
 

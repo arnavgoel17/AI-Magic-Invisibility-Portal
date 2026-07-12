@@ -2,6 +2,7 @@ import cv2
 import mediapipe as mp
 import time
 
+from gesture_recognizer import detect_gesture
 from portal import Portal
 
 # ---------------- Camera ----------------
@@ -40,6 +41,18 @@ background = cv2.flip(background, 1)
 
 # ---------------- Portal ----------------
 portal = Portal(radius=120)
+
+# ---------------- Gesture State ----------------
+last_triggered_gesture = None
+gesture_stable_count = 0
+current_stable_gesture = None
+gesture_cooldown = 0
+
+# ---------------- Portal State ----------------
+portal_visible = True
+portal_paused = False
+gesture_message = None
+gesture_message_timer = 0
 
 while True:
 
@@ -85,8 +98,63 @@ while True:
 
         portal.set_radius(radius)
 
+        # ---------------- Gesture Detection ----------------
+        handedness = results.multi_handedness[0].classification[0].label
+        gesture = detect_gesture(hand, handedness)
+
+        # Gesture stability check
+        if gesture == current_stable_gesture and gesture is not None:
+            gesture_stable_count += 1
+        else:
+            current_stable_gesture = gesture
+            gesture_stable_count = 1
+
+        # Gesture cooldown
+        if gesture_cooldown > 0:
+            gesture_cooldown -= 1
+
+        # Execute gesture if stable and not on cooldown
+        if gesture_stable_count >= 5 and gesture_cooldown == 0:
+
+            if gesture == "ok":
+
+                print("Stand away from camera...")
+                time.sleep(2)
+
+                ret, bg = cap.read()
+
+                if ret:
+                    background = cv2.flip(bg, 1)
+                    print("Background Updated Successfully!")
+                    gesture_message = "Gesture: OK Sign\nAction: Background Captured"
+                    gesture_message_timer = 60
+
+            elif gesture == "peace":
+
+                portal_visible = not portal_visible
+                gesture_message = "Gesture: Peace\nAction: Portal " + ("Hidden" if not portal_visible else "Visible")
+                gesture_message_timer = 60
+
+            elif gesture == "fist":
+
+                portal_paused = not portal_paused
+                gesture_message = "Gesture: Fist\nAction: Portal " + ("Paused" if portal_paused else "Resumed")
+                gesture_message_timer = 60
+
+            elif gesture == "open_palm":
+
+                portal_visible = True
+                portal_paused = False
+                gesture_message = "Gesture: Open Palm\nAction: Reset"
+                gesture_message_timer = 60
+
+            last_triggered_gesture = gesture
+            gesture_cooldown = 30
+            gesture_stable_count = 0
+
     # ---------------- Draw Portal ----------------
-    frame = portal.draw(frame, background)
+    if portal_visible:
+        frame = portal.draw(frame, background)
 
     # ---------------- Title ----------------
     cv2.putText(
@@ -115,7 +183,7 @@ while True:
     # ---------------- Controls ----------------
     cv2.putText(
         frame,
-        "Move Index Finger | Thumb = Portal Size | Press B = Capture Background",
+        "Move Index | Thumb = Size | B = Capture | Q = Quit | Gestures Enabled",
         (20, 100),
         cv2.FONT_HERSHEY_SIMPLEX,
         0.55,
@@ -123,6 +191,26 @@ while True:
         1,
         cv2.LINE_AA
     )
+
+    # ---------------- Gesture Feedback ----------------
+    if gesture_message_timer > 0:
+        gesture_message_timer -= 1
+
+        lines = gesture_message.split("\n")
+        y_offset = 130
+
+        for line in lines:
+            cv2.putText(
+                frame,
+                line,
+                (20, y_offset),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                0.6,
+                (0, 255, 255),
+                2,
+                cv2.LINE_AA
+            )
+            y_offset += 25
 
     # ---------------- Watermark ----------------
     cv2.putText(
