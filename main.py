@@ -5,8 +5,33 @@ import time
 from gesture_recognizer import detect_gesture
 from portal import Portal
 
+import tkinter as tk
+
+# ---------------- Screen Utilities ----------------
+def resize_to_screen(frame, screen_w, screen_h):
+    """
+    Resize frame while preserving aspect ratio.
+    """
+    h, w = frame.shape[:2]
+
+    scale = min(screen_w / w, screen_h / h)
+
+    new_w = int(w * scale)
+    new_h = int(h * scale)
+
+    return cv2.resize(frame, (new_w, new_h))
+
 # ---------------- Camera ----------------
 cap = cv2.VideoCapture(0)
+
+# ---------------- Screen Size ----------------
+root = tk.Tk()
+root.withdraw()
+
+SCREEN_W = int(root.winfo_screenwidth() * 0.8)
+SCREEN_H = int(root.winfo_screenheight() * 0.8)
+
+root.destroy()
 
 if not cap.isOpened():
     print("Cannot open camera")
@@ -53,6 +78,15 @@ portal_visible = True
 portal_paused = False
 gesture_message = None
 gesture_message_timer = 0
+
+
+
+# ---------------- Window ----------------
+WINDOW_NAME = "AI Magic Invisibility Portal"
+
+cv2.namedWindow(WINDOW_NAME, cv2.WINDOW_NORMAL)
+cv2.resizeWindow(WINDOW_NAME, SCREEN_W, SCREEN_H)
+
 
 while True:
 
@@ -168,6 +202,17 @@ while True:
         cv2.LINE_AA
     )
 
+    #----------------- C=Change Shape -----------
+    cv2.putText(
+    frame,
+    f"Portal Shape : {portal.get_shape().title()}",
+    (20, 130),
+    cv2.FONT_HERSHEY_SIMPLEX,
+    0.6,
+    (0,255,255),
+    2,
+    cv2.LINE_AA
+)
     # ---------------- Developer ----------------
     cv2.putText(
         frame,
@@ -183,7 +228,8 @@ while True:
     # ---------------- Controls ----------------
     cv2.putText(
         frame,
-        "Move Index | Thumb = Size | B = Capture | Q = Quit | Gestures Enabled",
+        "Move Index | Thumb=Size | B = Capture | C = Shape | F = Fitscreen | Q = Quit|"
+        " Gestures Enabled",
         (20, 100),
         cv2.FONT_HERSHEY_SIMPLEX,
         0.55,
@@ -197,7 +243,7 @@ while True:
         gesture_message_timer -= 1
 
         lines = gesture_message.split("\n")
-        y_offset = 130
+        y_offset = 160
 
         for line in lines:
             cv2.putText(
@@ -224,9 +270,28 @@ while True:
         cv2.LINE_AA
     )
 
-    cv2.imshow("AI Magic Invisibility Portal", frame)
+    display_frame = resize_to_screen(frame, SCREEN_W, SCREEN_H)
 
+    cv2.imshow("AI Magic Invisibility Portal", display_frame)
+
+
+    fullscreen = False
     key = cv2.waitKey(1) & 0xFF
+    # ---------------- Toggle Fullscreen ----------------
+
+    if key == ord("f"):
+
+        fullscreen = not fullscreen
+
+        if fullscreen:
+            cv2.resizeWindow(WINDOW_NAME, 1920, 1080)
+        else:
+            cv2.resizeWindow(WINDOW_NAME, 1000, 700)
+
+    #------------- Change Shape -----------------------------
+        
+    if key == ord("c"):
+        portal.next_shape()
 
     # ---------------- Re-Capture Background ----------------
     if key == ord("b"):
