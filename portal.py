@@ -401,7 +401,7 @@ class Portal:
         alpha = mask.astype(np.float32) / 255.0
         alpha = cv2.merge([alpha, alpha, alpha])
 
-    # Match brightness of captured background to current frame
+        # Match brightness of captured background to current frame
         bg = background.copy()
 
         result = (
