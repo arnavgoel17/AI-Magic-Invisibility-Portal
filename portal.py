@@ -4,7 +4,7 @@ import numpy as np
 
 class Portal:
 
-    #updated Contructor
+    #updated Constructor
     def __init__(self, radius=120):
 
         self.x = 320
