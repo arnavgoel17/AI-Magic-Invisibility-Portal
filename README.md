@@ -133,6 +133,8 @@ GitHub: https://github.com/sanya-1612
 | Key | Action |
 |-----|--------|
 | `B` | Capture/Refresh Background |
+| `C` | Change Shape |
+| `F` | Toggle Fitscreen (Fullscreen) |
 | `Q` | Quit Application |
 
 ### Gesture Controls
