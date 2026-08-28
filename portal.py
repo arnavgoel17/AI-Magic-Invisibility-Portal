@@ -395,8 +395,17 @@ class Portal:
         self.draw_mask(mask)
         
 
+        # Calculate dynamic Region of Interest (ROI) bounds
+        pad = 30
+        y1 = max(0, int(self.y - self.radius - pad))
+        y2 = min(h, int(self.y + self.radius + pad))
+        x1 = max(0, int(self.x - self.radius - pad))
+        x2 = min(w, int(self.x + self.radius + pad))
+
         # Soft Edge
-        mask = cv2.GaussianBlur(mask, (15, 15), 4)
+        if y2 > y1 and x2 > x1:
+            roi = mask[y1:y2, x1:x2]
+            mask[y1:y2, x1:x2] = cv2.GaussianBlur(roi, (15, 15), 4)
 
         alpha = mask.astype(np.float32) / 255.0
         alpha = cv2.merge([alpha, alpha, alpha])
