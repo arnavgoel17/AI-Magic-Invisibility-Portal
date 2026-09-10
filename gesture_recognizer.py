@@ -11,6 +11,7 @@ OK_THRESHOLD = 0.04
 # finger detection using joint angles.
 FINGER_ANGLE_THRESHOLD = 155.0
 THUMB_ANGLE_THRESHOLD = 150.0
+ANGLE_EPSILON = 1e-8
 
 
 def calculate_angle(a, b, c):
@@ -64,7 +65,7 @@ def calculate_angle(a, b, c):
     )
 
     # Prevent division by zero if landmarks overlap.
-    if ba_length == 0.0 or bc_length == 0.0:
+    if ba_length < ANGLE_EPSILON or bc_length < ANGLE_EPSILON:
         return 0.0
 
     # Dot product of BA and BC.
@@ -362,10 +363,10 @@ def detect_gesture(hand_landmarks, handedness):
     # while the remaining three fingers are extended.
     # ---------------------------------------------------------
 
-    thumb_index_dist = calculate_distance(
-        thumb_tip,
-        index_tip
-    )
+    thumb_index_dist = (
+        (thumb_tip.x - index_tip.x) ** 2
+        + (thumb_tip.y - index_tip.y) ** 2
+    ) ** 0.5
 
     if (
         thumb_index_dist < OK_THRESHOLD

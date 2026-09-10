@@ -276,11 +276,16 @@ def create_hand_landmarks(
         landmarks[3] = landmark(-1.0, -0.3)   # THUMB_IP
         landmarks[4] = landmark(-1.3, -0.4)   # THUMB_TIP
     else:
-        landmarks[1] = landmark(-0.3, 0.1)
-        landmarks[2] = landmark(-0.5, 0.2)
-        landmarks[3] = landmark(-0.4, 0.5)
-        landmarks[4] = landmark(-0.2, 0.6)
+        landmarks[1] = landmark(-0.20, 0.10)
+        landmarks[2] = landmark(-0.25, 0.15)
+        landmarks[3] = landmark(-0.10, 0.10)
+        landmarks[4] = landmark(-0.05, 0.00)
 
+    if ok_gesture:
+        landmarks[1] = landmark(-0.40, -0.10)   # THUMB_CMC
+        landmarks[2] = landmark(-0.35, -0.70)   # THUMB_MCP
+        landmarks[3] = landmark(-0.32, -1.35)   # THUMB_IP
+        landmarks[4] = landmark(-0.31, -2.01, 0.10)  # THUMB_TIP
     # ---------------------------------------------------------
     # Index finger
     # ---------------------------------------------------------
@@ -471,3 +476,38 @@ def test_open_palm_remains_open_palm_when_rotated():
             rotated_hand,
             "Right"
         ) == "open_palm"
+
+
+def test_ok_gesture():
+    hand = create_hand_landmarks(
+        thumb_extended=True,
+        index_extended=True,
+        middle_extended=True,
+        ring_extended=True,
+        pinky_extended=True,
+        ok_gesture=True,
+    )
+
+    assert detect_gesture(hand, "Right") == "ok"
+
+
+def test_ok_gesture_remains_valid_when_rotated():
+    hand = create_hand_landmarks(
+        thumb_extended=True,
+        index_extended=True,
+        middle_extended=True,
+        ring_extended=True,
+        pinky_extended=True,
+        ok_gesture=True,
+    )
+
+    for rotation in (0, 30, 45, 60, 90):
+        rotated_hand = rotate_hand(
+            hand,
+            rotation
+        )
+
+        assert detect_gesture(
+            rotated_hand,
+            "Right"
+        ) == "ok"
