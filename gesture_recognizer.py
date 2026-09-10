@@ -4,7 +4,6 @@ import mediapipe as mp
 mp_hands = mp.solutions.hands
 
 # Existing project thresholds - kept unchanged.
-EPSILON = 0.02
 OK_THRESHOLD = 0.04
 
 # New thresholds required for orientation-independent
